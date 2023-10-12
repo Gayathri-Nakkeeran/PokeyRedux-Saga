@@ -1,5 +1,6 @@
-import { useEffect  } from 'react';
-import { useNavigate  , useParams} from 'react-router-dom';
+import axios from 'axios';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector , useDispatch} from 'react-redux';
 
 
@@ -7,35 +8,48 @@ export default function ProductDescriptionPage(){
 
 const posts = useSelector(state=> state.posts);
 const isLoading = useSelector(state=>state.isLoading);
+const load = useSelector(state=> state.load);
 const fullInfo = useSelector(state=> state.fullInfo);
 const dispatch = useDispatch();
-const pokeNum = useParams();
+console.log(isLoading , posts)
+
+
 let pages = useNavigate();
+let pokeNum = localStorage.getItem('pokeNum');
 
-
-
-useEffect(()=>{ 
+// useEffect(()=>{ 
   
-  let url = posts.results[pokeNum.id].url;
-  dispatch({type:'DetailPageLoad' , url:url})
-},[])
+    
+//     if(!isLoading && posts.results!=null){ 
+//         let url = posts.results[pokeNum].url;
+//         const getFullInfo = axios.create({
+//         baseURL: url});
+//         getFullInfo.get().then((response) => {
+        
+//           dispatch({type:'descriptionPageLoad' , load:false , fullInfo: response.data})      
+//       })
+//       ;
 
-const movePrevious = ()=>{
-  pages('/');  
-}
+//  }},[isLoading]);
+
+
+
+console.log(fullInfo)
 
 if(isLoading){
     return(
       
-    <div className = " mainDiv loader"><h2>Loading....</h2></div>
+    <div><h2>Loading....</h2></div>
     );
 } 
 
 
-let keyNumber = Number(pokeNum.id)+1;
+let keyNumber = Number(pokeNum)+1;
 let imgNumber = '00'+keyNumber;
 let imgSource1 = 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/'+imgNumber.substr(imgNumber.length-3)+'.png';
-
+const movePrevious = ()=>{
+  pages('/');  
+}
    
 
     return(
@@ -46,7 +60,7 @@ let imgSource1 = 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/'+imgN
 <div className ="col-md-6 col-12">
   <div className= 'pokeDetails'>
     <div className='text-center pokeName'>
-      <h1>{posts?.results[pokeNum.id].name.toUpperCase()}</h1>
+      <h1>{posts?.results[pokeNum].name.toUpperCase()}</h1>
     </div>
     <br></br>
  <div className = "container-info d-flex flex-wrap my-4">
@@ -54,7 +68,8 @@ let imgSource1 = 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/'+imgN
     <div>
     <h4>Height</h4>
     </div>
-    <p>{fullInfo?.height} meter</p>
+    
+    <p>{fullInfo[pokeNum]?.height} meter</p>
     
   </div>
   <hr className = "breakLine"/>
@@ -62,21 +77,21 @@ let imgSource1 = 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/'+imgN
     <div>
   <h4>Weight</h4>
   </div>
-  <p>{fullInfo?.weight} kg</p>
+  <p>{fullInfo[pokeNum]?.weight} kg</p>
   </div>
   <hr className = "breakLine"/>
   <div className = "abilitiesInfo">
     <div>
   <h4>Abilities</h4>
   </div>
-  <p>{fullInfo?.abilities?.map((ability)=> {return ( ability.ability.name+'  ');})}</p>
+  <p>{fullInfo[pokeNum]?.abilities?.map((ability)=> {return ( ability.ability.name+'  ');})}</p>
   </div>
   <hr className = "breakLine"/>
   <div className = "abilitiesInfo">
     <div>
   <h4>Base Experience</h4>
   </div>
-  <p>{fullInfo?.base_experience} years</p>
+  <p>{fullInfo[pokeNum]?.base_experience} years</p>
   </div>
 
  </div>

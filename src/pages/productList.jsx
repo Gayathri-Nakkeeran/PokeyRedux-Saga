@@ -1,26 +1,40 @@
+import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import pokeCard from "../assets/poke.jpg"
 import { useSelector , useDispatch} from 'react-redux';
 import { useEffect } from 'react';
-import pokeCard from "../assets/poke.jpg"
 
  
-export default function ProductList(){  
+export default function ProductList(){
   
+  let pages = useNavigate();
+  const moveToNextPage = (key)=>{ 
+    localStorage.setItem('pokeNum', key);
+    pages("/details");
+  }
   const dispatch =  useDispatch();
   const posts = useSelector(state => state.posts);      
-  const isLoading = useSelector(state => state.isLoading); 
+  const isLoading = useSelector(state => state.isLoading);   
   
-    useEffect(()=>{
-      if(posts.length==0){
-      dispatch({type: 'LoadPage'})
-      }},[])
 
-  let pages = useNavigate();
-  const moveToNextPage = (key)=>{    
-    pages(`/details/${key}`)
+  useEffect(()=>{
    
-  }
+    if(posts){
+    axios.get("https://pokeapi.co/api/v2/pokemon/").
+    then(response=> { 
+      let fullData = [];
+     
+      
+      for(const key in response.data.results){
+        axios.get(response.data.results[key].url).then(response=>{
+          
+          fullData.push(response.data);
+        })
+      }
     
+
+      dispatch({type:'initialPageLoad' , posts: response.data , isLoading:false ,fullInfo:fullData })});
+     }},[]);
 
     let keyNumber = 0;
 
@@ -28,19 +42,19 @@ export default function ProductList(){
     if(isLoading){
         return(
          
-            <div className = "mainDiv loader">Loading....</div>
+            <div >Loading....</div>
             
             
         )
     }
     return (
 
-        <div className = "mainDiv">      
+        <div className = " mainDiv">      
         <br></br>       
         <div className="card-groups container">
         <br></br>
             <div className = "row ">
-        {posts?.results?.map((info , key)=> {
+        {posts.results.map((info , key)=> {
           
           keyNumber+=1;
           let imgNumber = '00'+keyNumber;
@@ -60,7 +74,7 @@ export default function ProductList(){
         
         
           <div className="card-body">
-            <h5 className="card-title">{info?.name.toUpperCase()}</h5>
+            <h5 className="card-title">{info.name.toUpperCase()}</h5>
             
           </div>
         
